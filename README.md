@@ -1,6 +1,6 @@
-# Astro Modern Personal Website
+# Anunay Personal Portfolio Website
 
-![Astro Modern Personal Website](public/social_img.png)
+![Anunay Personal Portfolio Website](public/social_img.png)
 
 Modern Personal Website Template with Project Section, CV Section, Paginated Blog, RSS Feed, SEO Friendly, Visual themes and Responsive Desing for Astro framework.
 
