@@ -1,6 +1,7 @@
 # Anunay Personal Portfolio Website
 
-![Anunay Personal Portfolio Website](public/social_img.png)
+![Anunay Personal Portfolio Website](https://user-images.githubusercontent.com/16853513/224398709-f78b16ff-4eb8-4c02-a905-7e7138daf0bf.png)
+
 
 Modern Personal Website Template with Project Section, CV Section, Paginated Blog, RSS Feed, SEO Friendly, Visual themes and Responsive Desing for Astro framework.
 
