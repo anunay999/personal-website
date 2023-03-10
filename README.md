@@ -5,10 +5,6 @@
 
 Modern Personal Website Template with Project Section, CV Section, Paginated Blog, RSS Feed, SEO Friendly, Visual themes and Responsive Desing for Astro framework.
 
-## Demo
-
-View a live demo of the [Astro Modern Personal Website](https://astro-modern-personal-website.netlify.app/)
-
 ## Installation
 
 Run the following command in your terminal
@@ -239,11 +235,3 @@ Please be wary of working on issues *not* marked as `accepted`. Just because som
 ## License
 
 Astro Modern Personal Website is licensed under the MIT license — see the [LICENSE](https://github.com/manuelernestog/astro-modern-personal-website/blob/main/LICENSE) file for details.
-
-## Contributors
-
-<a href="https://github.com/manuelernestog/astro-modern-personal-website/graphs/contributors">
-  <img src="https://contrib.rocks/image?repo=manuelernestog/astro-modern-personal-website" />
-</a>
-
-Made with [contrib.rocks](https://contrib.rocks).
