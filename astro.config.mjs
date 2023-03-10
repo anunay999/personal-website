@@ -7,6 +7,5 @@ import tailwind from "@astrojs/tailwind";
 // https://astro.build/config
 export default defineConfig({
   site: 'https://anunay.dev',
-  base: '/anunay.github.io',
   integrations: [mdx(), sitemap(), tailwind()]
 });
