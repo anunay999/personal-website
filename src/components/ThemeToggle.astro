@@ -1,10 +1,3 @@
----
-import Moon from "./svg/Moon.astro";
-import Sun  from "./svg/Sun.astro";
-
-import HorizontalCard from "../components/HorizontalCard.astro";
-import { getCollection } from "astro:content";
----
 <script>
   // Get the theme toggle input
   const themeToggle = document.querySelector(
@@ -20,7 +13,7 @@ import { getCollection } from "astro:content";
     document.documentElement.setAttribute("data-theme", currentTheme);
 
     // If the current theme is dark, check the theme toggle
-    if (currentTheme === "night") {
+    if (currentTheme === "halloween") {
       themeToggle.checked = true;
     }
   }
@@ -28,8 +21,8 @@ import { getCollection } from "astro:content";
   // Function that will switch the theme based on the if the theme toggle is checked or not
   function switchTheme(e) {
     if (e.target.checked) {
-      document.documentElement.setAttribute("data-theme", "night");
-      localStorage.setItem("theme", "night");
+      document.documentElement.setAttribute("data-theme", "halloween");
+      localStorage.setItem("theme", "halloween");
     } else {
       document.documentElement.setAttribute("data-theme", "fantasy");
       localStorage.setItem("theme", "fantasy");
