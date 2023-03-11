@@ -2,7 +2,7 @@
 title: "Building Low Latency Streaming Data Pipelines - Part 1"
 description: ""
 pubDate: "Jan 31 2023"
-heroImage: "/public/post1/cover1.jpg"
+heroImage: "/post1/cover1.jpg"
 ---
 
 As an engineer, I know firsthand the challenge of keeping up with the ever-growing amounts of data generated in real time. The demand for low-latency streaming ETL pipelines is at an all-time high. I'm here to share my learnings and experiences building these powerful tools. Join me as we explore cutting-edge techniques and technologies revolutionizing real-time data handling.
