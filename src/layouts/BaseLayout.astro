@@ -24,7 +24,7 @@ const { image, title = SITE_TITLE, description = SITE_DESCRIPTION } = Astro.prop
             <slot />
           </main>
         </div>    
-        <ThemeToggle/>    
+        <ThemeToggle className="hidden lg:block fixed top-1 right-1 z-2 hover:scale-110 transition delay-60 md: p-10 z-10 lg:p-10"/>    
         <Footer />
       </div>
       <SideBar />
