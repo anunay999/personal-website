@@ -1,0 +1,17 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title = "Meal Planner">
+  <div>
+    <div class="text-3xl w-full font-bold mb-2">Meal Planner</div>
+  </div>
+
+  <script
+	type="module"
+	src="https://gradio.s3-us-west-2.amazonaws.com/4.12.0/gradio.js"
+    ></script>
+
+    <gradio-app src="https://anunay9-mealplanner.hf.space"></gradio-app>
+
+</BaseLayout>
