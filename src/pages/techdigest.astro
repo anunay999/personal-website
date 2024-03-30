@@ -1,0 +1,63 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import HorizontalCard from "../components/HorizontalCard.astro";
+---
+
+<BaseLayout title = "Projects">
+    <div>
+        <div class="text-3xl w-full font-bold mb-2">Tech Weekly Digest 💡</div>
+    </div>
+
+    <HorizontalCard
+            title="Introducing DBRX: A New State-of-the-Art Open LLM"
+            img="https://www.databricks.com/en-blog-assets/static/2fe1a0af1ee0f6605024a810b604079c/dbrx-blog-header-optimized.png"
+            desc="Today, we are excited to introduce DBRX, an open, general-purpose LLM created by Databricks. Across a range of standard benchmarks, DBRX sets a new state-of-the-art for established open LLMs."
+            url="https://www.databricks.com/blog/introducing-dbrx-new-state-art-open-llm"
+    />
+    <div class="divider my-0"></div>
+
+    <HorizontalCard
+            title="Logarithm: A logging engine for AI training workflows and services"
+            img="https://engineering.fb.com/wp-content/uploads/2024/03/Logarithm-hero.png"
+            desc="Logarithm indexes 100+GB/s of logs in real time, and thousands of queries a second. We designed the system to support service-level guarantees on log freshness, completeness, durability, query latency, and query result completeness."
+            url="https://engineering.fb.com/2024/03/18/data-infrastructure/logarithm-logging-engine-ai-training-workflows-services-meta/"
+            badge="NEW"
+    />
+    <div class="divider my-0"></div>
+    <HorizontalCard
+            title="Sequential A/B Testing Keeps the World Streaming Netflix Part 2: Counting Processes"
+            img="https://miro.medium.com/v2/resize:fit:720/format:webp/1*7DNyGA0x7r7msS7w1Zpvpw.jpeg"
+            desc="Have you ever encountered a bug while streaming Netflix? Did your title stop unexpectedly, or not start at all? In the first installment of this blog series on sequential testing,"
+            url="https://netflixtechblog.com/sequential-testing-keeps-the-world-streaming-netflix-part-2-counting-processes-da6805341642"
+            badge="FOSS"
+    />
+    <div class="divider my-0"></div>
+    <HorizontalCard
+            title="Scaling AI/ML Infrastructure at Uber"
+            img="https://blog.uber-cdn.com/cdn-cgi/image/width=1536,quality=80,onerror=redirect,format=auto/wp-content/uploads/2024/03/scaling_infra_1.png"
+            desc="Machine Learning (ML) is celebrating its 8th year at Uber since we first started using complex rule-based machine learning models for driver-rider matching and pricing teams in 2016. Since then, our progression has been significant"
+            url="https://www.uber.com/en-IN/blog/scaling-ai-ml-infrastructure-at-uber/?uclick_id=df7848bf-10d2-48c3-a41e-c4f12918da62"
+    />
+    <div class="divider my-0"></div>
+    <HorizontalCard
+            title="The Scary Thing About Automating Deploys"
+            img="https://slack.engineering/wp-content/uploads/sites/7/2024/01/Screenshot-2024-01-18-at-9.36.03%E2%80%AFAM.png"
+            desc="Most of Slack runs on a monolithic service simply called “The Webapp”. It’s big – hundreds of developers create hundreds of changes every week."
+            url="https://slack.engineering/the-scary-thing-about-automating-deploys/"
+    />
+    <div class="divider my-0"></div>
+    <HorizontalCard
+            title="Ledger: Stripe’s system for tracking and validating money movement"
+            img="https://images.ctfassets.net/fzn2n1nzq965/1kYCAIVuoYqTe5qrwOOY8K/005295f325509e41a3cf0d2dd3435019/Frame_1__14_.png?w=1080&q=80&fm=webp"
+            desc="Last Black Friday to Cyber Monday, Stripe processed 300 million transactions with a total payment volume of $18.6B"
+            url="https://stripe.com/blog/ledger-stripe-system-for-tracking-and-validating-money-movement"
+    />
+    <div class="divider my-0"></div>
+    <HorizontalCard
+            title="Finding AI-generated (deepfake) faces in the wild"
+            img="https://media.licdn.com/dms/image/D4D08AQGLlQzz3ZfaDQ/croft-frontend-shrinkToFit1024/0/1710981939502?e=2147483647&v=beta&t=zb53XrceLj0cQaRL41c_IrS7x8i4evrDLCuh-Vg9bUc"
+            desc="At LinkedIn, we put our members first, which includes making sure that they have real and authentic interactions on our platform. To do so, we constantly evaluate the ways that those interactions might be discredited or undermined and then be proactive about safeguarding them."
+            url="https://www.linkedin.com/blog/engineering/trust-and-safety/finding-ai-generated-deepfake-faces-in-the-wild"
+    />
+
+</BaseLayout>
