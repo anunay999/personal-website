@@ -727,9 +727,28 @@ function HomeApp({
                 maxWidth: 640,
                 lineHeight: 1.35,
                 fontStyle: "italic",
+                /* The hero overlay sits on top of a non-interactive shader
+                   canvas; re-enable pointer events for the link only. */
+                pointerEvents: "auto",
               }}
             >
-              {profile.bio}
+              {profile.bioPrefix}
+              <a
+                href={profile.company.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  color: T.accent,
+                  textDecoration: "underline",
+                  textDecorationColor: "rgba(159,192,255,0.4)",
+                  textUnderlineOffset: "0.18em",
+                  textDecorationThickness: "1px",
+                  fontStyle: "normal",
+                }}
+              >
+                {profile.company.name}
+              </a>
+              {profile.bioSuffix}
             </div>
           </div>
         </div>
@@ -1289,8 +1308,23 @@ function AboutApp({ isMobile }: { isMobile: boolean }) {
       >
         <div>
           <p style={{ fontFamily: F.serif, fontSize: isMobile ? 18 : 21, lineHeight: 1.55, color: T.ink, margin: 0 }}>
-            I lead AI and data systems on the core platform powering SMB sales intelligence, spanning architecture, enrichment pipelines, and
-            agent orchestration that deliver high-coverage, real-time signals for go-to-market teams.
+            I lead AI and data systems at{" "}
+            <a
+              href={profile.company.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{
+                color: T.accent,
+                textDecoration: "underline",
+                textDecorationColor: "rgba(159,192,255,0.4)",
+                textUnderlineOffset: "0.18em",
+                textDecorationThickness: "1px",
+              }}
+            >
+              Orbital
+            </a>
+            , on the core platform powering SMB sales intelligence — spanning architecture, enrichment
+            pipelines, and agent orchestration that deliver high-coverage, real-time signals for go-to-market teams.
           </p>
           <p style={{ fontFamily: F.serif, fontSize: isMobile ? 16 : 18, lineHeight: 1.6, color: T.inkDim, marginTop: 18 }}>
             My work sits at the intersection of product, data quality, and infrastructure reliability. I partner closely with founders, sales,
@@ -1334,6 +1368,17 @@ function AboutApp({ isMobile }: { isMobile: boolean }) {
           <dl style={{ display: "grid", gridTemplateColumns: "70px 1fr", gap: "10px 12px", margin: 0, fontFamily: F.mono, fontSize: 12 }}>
             <dt style={{ color: T.inkFaint }}>status</dt>
             <dd style={{ margin: 0, color: T.ink }}>{profile.status}</dd>
+            <dt style={{ color: T.inkFaint }}>co</dt>
+            <dd style={{ margin: 0 }}>
+              <a
+                href={profile.company.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: T.accent, textDecoration: "none" }}
+              >
+                Orbital
+              </a>
+            </dd>
             <dt style={{ color: T.inkFaint }}>loc</dt>
             <dd style={{ margin: 0, color: T.ink }}>{profile.location}</dd>
             <dt style={{ color: T.inkFaint }}>site</dt>
@@ -1454,7 +1499,7 @@ function TerminalApp({ isMobile }: { isMobile: boolean }) {
 
     if (normalized === "help") output.push({ type: "out", text: "whoami · about · links · projects · blog · contact · sudo · clear" });
     else if (normalized === "whoami") output.push({ type: "out", text: `${siteData.profile.fullName} — ${siteData.profile.title}` });
-    else if (normalized === "about") output.push({ type: "out", text: siteData.profile.bio });
+    else if (normalized === "about") output.push({ type: "out", text: siteData.profile.bioText });
     else if (normalized === "links") siteData.links.forEach((link) => output.push({ type: "out", text: `  ${link.label.padEnd(9)} ${link.url}` }));
     else if (normalized === "projects") siteData.projects.forEach((project) => output.push({ type: "out", text: `  ${project.name.padEnd(26)} ${project.tech}` }));
     else if (normalized === "blog" || normalized === "writing") blogPosts.forEach((post) => output.push({ type: "out", text: `  ${post.date}  ${post.title}` }));

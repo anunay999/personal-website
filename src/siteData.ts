@@ -5,7 +5,14 @@ export interface Profile {
   title: string;
   location: string;
   status: string;
-  bio: string;
+  /* Bio is split into prefix + the company link + suffix so the rendered
+     copy can hyperlink the company name without baking HTML into the
+     content. Keep `bioText` as a flat string for non-rich surfaces (the
+     terminal `about` command, OG meta, etc.). */
+  bioPrefix: string;
+  bioSuffix: string;
+  bioText: string;
+  company: { name: string; url: string };
   email: string;
   site: string;
   github: string;
@@ -44,7 +51,11 @@ export const siteData: SiteData = {
     title: "AI platform · SMB sales intelligence",
     location: "building from anywhere",
     status: "open to collaborate",
-    bio: "Leading AI and data systems on the core platform powering SMB sales intelligence for GTM teams.",
+    bioPrefix: "Building ",
+    bioSuffix: " — AI and data systems on the core platform powering SMB sales intelligence for GTM teams.",
+    bioText:
+      "Building @ Orbital — AI and data systems on the core platform powering SMB sales intelligence for GTM teams.",
+    company: { name: "@ Orbital", url: "https://withorbital.com" },
     email: "mail@anunay.dev",
     site: "anunay.dev",
     github: "github.com/anunay999",
