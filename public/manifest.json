@@ -1,0 +1,10 @@
+{
+  "name": "anunay.dev",
+  "short_name": "anunay",
+  "description": "Personal site",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#07080a",
+  "theme_color": "#07080a",
+  "icons": []
+}
