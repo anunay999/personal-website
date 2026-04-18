@@ -763,13 +763,13 @@ function AboutApp() {
       <div style={{ marginTop: 36, display: "grid", gridTemplateColumns: "1fr 320px", gap: 48, maxWidth: 960 }}>
         <div>
           <p style={{ fontFamily: F.serif, fontSize: 21, lineHeight: 1.55, color: T.ink, margin: 0 }}>
-            I lead core platform and data systems for AI-driven SMB sales intelligence, spanning architecture, enrichment pipelines, and agent
-            orchestration. Most of my work sits at the intersection of product, data quality, and infrastructure reliability.
+            I lead AI and data systems on the core platform powering SMB sales intelligence, spanning architecture, enrichment pipelines, and
+            agent orchestration that deliver high-coverage, real-time signals for go-to-market teams.
           </p>
           <p style={{ fontFamily: F.serif, fontSize: 18, lineHeight: 1.6, color: T.inkDim, marginTop: 18 }}>
-            I work closely with founders, sales teams, and customers to turn field feedback into scalable product improvements. Before this, I
-            built across Salesforce CRM, Agentforce, analytics, and machine learning systems with a focus on performance, coverage, and
-            repeatable engineering leverage.
+            My work sits at the intersection of product, data quality, and infrastructure reliability. I partner closely with founders, sales,
+            and customers to turn field feedback into scalable systems. Before this, I built across Salesforce CRM, Agentforce, analytics, and
+            machine learning infrastructure with a focus on performance, coverage, and repeatable engineering leverage.
           </p>
           <div style={{ marginTop: 32, display: "flex", gap: 10, flexWrap: "wrap" }}>
             {["AI", "machine learning", "CRM", "data platforms", "pipelines", "Databricks", "scalable systems", "agent orchestration"].map(

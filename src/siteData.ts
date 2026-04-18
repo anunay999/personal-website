@@ -44,7 +44,7 @@ export const siteData: SiteData = {
     title: "AI platform · SMB sales intelligence",
     location: "building from anywhere",
     status: "open to collaborate",
-    bio: "Leading core platform and data systems for AI-driven SMB sales intelligence.",
+    bio: "Leading AI and data systems on the core platform powering SMB sales intelligence for GTM teams.",
     email: "mail@anunay.dev",
     site: "anunay.dev",
     github: "github.com/anunay999",
