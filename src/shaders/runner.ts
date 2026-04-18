@@ -27,6 +27,9 @@ export class ShaderRunner<State extends object> {
   private running = true;
   private mouse: [number, number];
   private raf = 0;
+  private resizeObserver: ResizeObserver | null = null;
+  private contextLostHandler!: (event: Event) => void;
+  private contextRestoredHandler!: () => void;
   private handlers!: {
     down: (e: PointerEvent) => void;
     up: (e: PointerEvent) => void;
@@ -47,11 +50,49 @@ export class ShaderRunner<State extends object> {
     }
 
     this.mouse = [canvas.width / 2, canvas.height / 2];
+
+    /* Size the backing buffer to the laid-out CSS size BEFORE creating the GL
+       context so the very first draw matches the visible pixel grid. Falls
+       back to a sane default if the canvas hasn't been laid out yet. */
+    this.syncSize();
+
     this.bind();
     this.initGL();
+
+    /* Paint a known background color immediately so the canvas isn't blank
+       (transparent / white default) before the first animation frame. */
+    this.gl.clearColor(0.02, 0.025, 0.04, 1.0);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT);
+
+    this.observeResize();
+
     this.start = performance.now();
     this.last = this.start;
     this.loop();
+  }
+
+  private syncSize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const rect = this.canvas.getBoundingClientRect();
+    /* Use rect (visible CSS size); fall back to clientWidth/Height; finally
+       fall back to a reasonable default so we never end up with a 0-sized
+       framebuffer (which produces undefined / saturated output). */
+    const cssWidth = rect.width || this.canvas.clientWidth || 320;
+    const cssHeight = rect.height || this.canvas.clientHeight || 240;
+    const width = Math.max(1, Math.floor(cssWidth * dpr));
+    const height = Math.max(1, Math.floor(cssHeight * dpr));
+
+    if (this.canvas.width !== width || this.canvas.height !== height) {
+      this.canvas.width = width;
+      this.canvas.height = height;
+      if (this.gl) this.gl.viewport(0, 0, width, height);
+    }
+  }
+
+  private observeResize() {
+    if (typeof ResizeObserver === "undefined") return;
+    this.resizeObserver = new ResizeObserver(() => this.syncSize());
+    this.resizeObserver.observe(this.canvas);
   }
 
   private bind() {
@@ -88,6 +129,20 @@ export class ShaderRunner<State extends object> {
     window.addEventListener("pointerup", this.handlers.up);
     window.addEventListener("pointermove", this.handlers.move);
     this.canvas.addEventListener("wheel", this.handlers.wheel, { passive: false });
+
+    this.contextLostHandler = (event) => {
+      event.preventDefault();
+      this.running = false;
+      window.cancelAnimationFrame(this.raf);
+    };
+    this.contextRestoredHandler = () => {
+      this.initGL();
+      this.running = true;
+      this.last = performance.now();
+      this.loop();
+    };
+    this.canvas.addEventListener("webglcontextlost", this.contextLostHandler);
+    this.canvas.addEventListener("webglcontextrestored", this.contextRestoredHandler);
   }
 
   private initGL() {
@@ -133,22 +188,10 @@ export class ShaderRunner<State extends object> {
     gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
   }
 
-  private resize() {
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    const width = this.canvas.clientWidth * dpr;
-    const height = this.canvas.clientHeight * dpr;
-
-    if (this.canvas.width !== width || this.canvas.height !== height) {
-      this.canvas.width = width;
-      this.canvas.height = height;
-      this.gl.viewport(0, 0, width, height);
-    }
-  }
-
   private loop = () => {
     if (!this.running) return;
 
-    this.resize();
+    this.syncSize();
     const now = performance.now();
     const dt = (now - this.last) / 1000;
     const time = (now - this.start) / 1000;
@@ -158,11 +201,16 @@ export class ShaderRunner<State extends object> {
 
     const gl = this.gl;
     const program = this.program;
-    gl.uniform2f(gl.getUniformLocation(program, "u_resolution"), this.canvas.width, this.canvas.height);
-    gl.uniform2f(gl.getUniformLocation(program, "u_mouse"), this.mouse[0], this.mouse[1]);
-    gl.uniform1f(gl.getUniformLocation(program, "u_time"), time);
-    this.shader.setUniforms?.(gl, program, this.state);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    /* Skip the draw if the canvas has no pixels yet (e.g. mid-layout). The
+       next animation frame will pick up the proper size from ResizeObserver
+       or the next syncSize() pass. */
+    if (this.canvas.width > 0 && this.canvas.height > 0) {
+      gl.uniform2f(gl.getUniformLocation(program, "u_resolution"), this.canvas.width, this.canvas.height);
+      gl.uniform2f(gl.getUniformLocation(program, "u_mouse"), this.mouse[0], this.mouse[1]);
+      gl.uniform1f(gl.getUniformLocation(program, "u_time"), time);
+      this.shader.setUniforms?.(gl, program, this.state);
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    }
 
     this.raf = window.requestAnimationFrame(this.loop);
   };
@@ -174,5 +222,9 @@ export class ShaderRunner<State extends object> {
     window.removeEventListener("pointerup", this.handlers.up);
     window.removeEventListener("pointermove", this.handlers.move);
     this.canvas.removeEventListener("wheel", this.handlers.wheel);
+    this.canvas.removeEventListener("webglcontextlost", this.contextLostHandler);
+    this.canvas.removeEventListener("webglcontextrestored", this.contextRestoredHandler);
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
   }
 }

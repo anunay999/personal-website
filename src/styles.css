@@ -8,8 +8,31 @@ body,
   overflow: hidden;
 }
 
+html,
+body {
+  /* Use dynamic viewport height when available so mobile browsers
+     don't leave a gap when the URL bar shows/hides. */
+  height: 100dvh;
+  /* Prevent rubber-band / pull-to-refresh on iOS while inside the app shell. */
+  overscroll-behavior: none;
+}
+
 body {
   font-family: "Inter", -apple-system, system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  text-size-adjust: 100%;
+  -webkit-text-size-adjust: 100%;
+  /* Better letter shapes & kerning for body type, especially for serifs.
+     `optimizeLegibility` enables ligatures + kerning at the cost of a tiny
+     paint-time hit — well worth it for long-form reading surfaces. */
+  text-rendering: optimizeLegibility;
+  font-feature-settings: "kern" 1, "liga" 1;
+}
+
+#root {
+  height: 100dvh;
 }
 
 * {
@@ -22,6 +45,12 @@ body {
 
 a {
   color: inherit;
+}
+
+button,
+a {
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
 }
 
 button:focus-visible,
@@ -47,4 +76,12 @@ input:focus-visible {
 
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.2);
+}
+
+/* Hide scrollbars on touch devices for a cleaner look but keep scrolling. */
+@media (pointer: coarse) {
+  ::-webkit-scrollbar {
+    width: 0;
+    height: 0;
+  }
 }
