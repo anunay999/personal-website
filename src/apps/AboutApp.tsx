@@ -60,9 +60,8 @@ export function AboutApp({ isMobile }: { isMobile: boolean }) {
                   pipelines, and agent orchestration that deliver high-coverage, real-time signals for go-to-market teams.
                 </p>
                 <p style={{ ...aboutBody, color: T.inkDim, marginTop: 20 }}>
-                  My work sits at the intersection of product, data quality, and infrastructure reliability. I partner closely with founders, sales,
-                  and customers to turn field feedback into scalable systems. Before this, I built across Salesforce CRM, Agentforce, analytics, and
-                  machine learning infrastructure with a focus on performance, coverage, and repeatable engineering leverage.
+                  I build at the edge of product, data, and intelligence. The goal is simple: systems that scale by orders of magnitude. Before
+                  Orbital, I built the Agentforce platform at Salesforce. On weekends, tiramisu.
                 </p>
               </>
             );
