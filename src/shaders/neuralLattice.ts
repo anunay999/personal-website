@@ -75,9 +75,16 @@ void main() {
   gl_FragColor = vec4(col, 1.0);
 }
 `,
-  state: { pulse: -999, density: 1.5 },
-  onPointer(_x, _y, type, state) {
-    if (type === "down") state.pulse = performance.now() / 1000;
+  /* `pulse` is the runner-clock timestamp of the last click. The shader
+     computes `age = u_time - u_pulse` and `wave = exp(-age * 1.2)`; if
+     `age` ever goes negative the exponential explodes to white. We
+     therefore (a) seed `pulse` far in the past on the runner clock so
+     the initial wave is fully decayed, and (b) sample `elapsed` from
+     the runner — NOT performance.now() — so the two values share a
+     time base across remounts. */
+  state: { pulse: -1000, density: 1.5 },
+  onPointer(_x, _y, type, state, _canvas, elapsed) {
+    if (type === "down") state.pulse = elapsed;
   },
   onScroll(deltaY, state) {
     state.density = Math.max(0.8, Math.min(3.5, state.density + deltaY * 0.001));
