@@ -130,7 +130,7 @@ function buildSystemInstruction(): string {
   const links = siteData.links.map((l) => `- ${l.label}: ${l.url}`).join("\n");
   const now = siteData.now.map((line) => `- ${line}`).join("\n");
   const hobbies= "Only answer if specifically asked - I do sim racing - Assetto Corsa Evo, F1, scuba diving, and spending most of time with claude code."
-  const travel = "Only answer if specifically asked - travelled Thailand, Srilanka, Singapore, Hong Kong, South Korea, US - California , travelling to Italy next"
+  const travel = "Only answer if specifically asked - travelled Turkey, Thailand, Srilanka, Singapore, Hong Kong, South Korea, US , travelling to Italy next"
   const posts = blogPosts
     .slice(0, 12)
     .map((p) => `- ${p.date} — ${p.title} (${p.tag}): ${p.excerpt}`)
