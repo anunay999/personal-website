@@ -1109,6 +1109,37 @@ function BlogApp({
   );
 }
 
+/* Pull a YouTube video id out of a paragraph node IF that paragraph contains
+   exactly one child — a single link to a YouTube URL. Returns null otherwise,
+   so normal paragraphs render as paragraphs. Supports `youtube.com/watch?v=`,
+   `youtu.be/`, and `youtube.com/embed/` URL shapes. */
+function extractYouTubeId(node: unknown): string | null {
+  if (!node || typeof node !== "object") return null;
+  const n = node as { children?: Array<{ tagName?: string; properties?: { href?: string } }> };
+  const children = n.children ?? [];
+  if (children.length !== 1) return null;
+  const only = children[0];
+  if (only.tagName !== "a") return null;
+  const href = only.properties?.href;
+  if (!href) return null;
+  try {
+    const url = new URL(href);
+    if (url.hostname === "youtu.be") {
+      return url.pathname.slice(1).split("/")[0] || null;
+    }
+    if (url.hostname === "youtube.com" || url.hostname === "www.youtube.com" || url.hostname === "m.youtube.com") {
+      const v = url.searchParams.get("v");
+      if (v) return v;
+      const parts = url.pathname.split("/").filter(Boolean);
+      if (parts[0] === "embed" && parts[1]) return parts[1];
+      if (parts[0] === "shorts" && parts[1]) return parts[1];
+    }
+  } catch {
+    return null;
+  }
+  return null;
+}
+
 function PostView({ post, onBack, isMobile }: { post: BlogPost; onBack: () => void; isMobile: boolean }) {
   /* Reading-grade body type. Source Serif 4 is optically-sized for long-form
      screen reading — much easier on the eyes than the display-cut serif we
@@ -1188,7 +1219,47 @@ function PostView({ post, onBack, isMobile }: { post: BlogPost; onBack: () => vo
           <ReactMarkdown
             remarkPlugins={[remarkGfm]}
             components={{
-              p: ({ children }) => <p style={{ ...bodyStyle, margin: "0 0 1.4em" }}>{children}</p>,
+              p: ({ children, node }) => {
+                /* Auto-embed: when a paragraph is just a single YouTube link
+                   (or a link-with-the-URL-as-text), render it as an iframe
+                   instead of a paragraph. Lets posts drop in a video by
+                   pasting the URL on its own line — no raw HTML, no extra
+                   markdown extensions, sandboxed via the iframe. */
+                const youTubeId = extractYouTubeId(node);
+                if (youTubeId) {
+                  return (
+                    <div
+                      style={{
+                        position: "relative",
+                        width: "100%",
+                        aspectRatio: "16 / 9",
+                        margin: "0 0 1.6em",
+                        borderRadius: 8,
+                        overflow: "hidden",
+                        background: "#000",
+                        border: `1px solid ${T.hair}`,
+                      }}
+                    >
+                      <iframe
+                        src={`https://www.youtube-nocookie.com/embed/${youTubeId}`}
+                        title="YouTube video"
+                        loading="lazy"
+                        allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowFullScreen
+                        referrerPolicy="strict-origin-when-cross-origin"
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          width: "100%",
+                          height: "100%",
+                          border: 0,
+                        }}
+                      />
+                    </div>
+                  );
+                }
+                return <p style={{ ...bodyStyle, margin: "0 0 1.4em" }}>{children}</p>;
+              },
               strong: ({ children }) => (
                 <strong style={{ color: T.ink, fontWeight: 600 }}>{children}</strong>
               ),
