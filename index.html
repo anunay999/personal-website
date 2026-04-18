@@ -10,6 +10,13 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>anunay.dev</title>
+    <!-- Inline critical background so the very first paint is dark; prevents a
+         white flash before the bundled stylesheet + React app mount. The
+         shader canvas inherits this dark surface while WebGL warms up. -->
+    <style>
+      html, body, #root { background: #07080a; }
+      html, body { margin: 0; min-height: 100%; color: #eceff4; }
+    </style>
     <link rel="manifest" href="/manifest.json" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />

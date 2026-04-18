@@ -9,6 +9,12 @@ export interface ShaderDefinition<State extends object> {
     type: "down" | "up" | "move",
     state: State,
     canvas: HTMLCanvasElement,
+    /* Elapsed seconds since the runner started — the SAME clock as the
+       `u_time` uniform. Pointer handlers that store a timestamp for use
+       in shader math (e.g. wave decay since last click) MUST use this
+       value, not performance.now(), or the math will explode after a
+       remount when the runner clock resets but performance.now() does not. */
+    elapsed: number,
   ) => void;
   onScroll?: (deltaY: number, state: State) => void;
   setUniforms?: (gl: WebGLRenderingContext, program: WebGLProgram, state: State) => void;
@@ -68,7 +74,26 @@ export class ShaderRunner<State extends object> {
 
     this.start = performance.now();
     this.last = this.start;
+
+    /* Pre-warm: issue one full shader draw synchronously, before the RAF
+       loop starts. This forces the GPU driver to compile/link/upload and
+       produce the first real frame as part of the same paint as the page
+       mount — instead of leaving the user looking at the dark `clearColor`
+       for a few frames while the GPU process spins up (especially after
+       page navigations when the GPU may have been idle). */
+    this.draw(0);
     this.loop();
+  }
+
+  private draw(time: number) {
+    const gl = this.gl;
+    const program = this.program;
+    if (this.canvas.width === 0 || this.canvas.height === 0) return;
+    gl.uniform2f(gl.getUniformLocation(program, "u_resolution"), this.canvas.width, this.canvas.height);
+    gl.uniform2f(gl.getUniformLocation(program, "u_mouse"), this.mouse[0], this.mouse[1]);
+    gl.uniform1f(gl.getUniformLocation(program, "u_time"), time);
+    this.shader.setUniforms?.(gl, program, this.state);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
   }
 
   private syncSize() {
@@ -109,7 +134,8 @@ export class ShaderRunner<State extends object> {
       (event: PointerEvent) => {
         const [x, y] = getXY(event);
         this.mouse = [x, y];
-        this.shader.onPointer?.(x, y, type, this.state, this.canvas);
+        const elapsed = (performance.now() - this.start) / 1000;
+        this.shader.onPointer?.(x, y, type, this.state, this.canvas, elapsed);
       };
 
     this.handlers = {
@@ -146,7 +172,16 @@ export class ShaderRunner<State extends object> {
   }
 
   private initGL() {
-    const gl = this.canvas.getContext("webgl", { antialias: true, preserveDrawingBuffer: false });
+    /* `alpha: false` gives us an opaque drawing buffer, so the very first
+       presented frame can't composite against anything behind the canvas
+       (which on a slow first paint could briefly be the page's white
+       default before the stylesheet lands). `preserveDrawingBuffer: false`
+       lets the browser drop the buffer between frames for perf. */
+    const gl = this.canvas.getContext("webgl", {
+      antialias: true,
+      preserveDrawingBuffer: false,
+      alpha: false,
+    });
     if (!gl) throw new Error("WebGL not supported");
 
     this.gl = gl;
@@ -198,19 +233,7 @@ export class ShaderRunner<State extends object> {
     this.last = now;
 
     this.shader.tick?.(this.state, dt);
-
-    const gl = this.gl;
-    const program = this.program;
-    /* Skip the draw if the canvas has no pixels yet (e.g. mid-layout). The
-       next animation frame will pick up the proper size from ResizeObserver
-       or the next syncSize() pass. */
-    if (this.canvas.width > 0 && this.canvas.height > 0) {
-      gl.uniform2f(gl.getUniformLocation(program, "u_resolution"), this.canvas.width, this.canvas.height);
-      gl.uniform2f(gl.getUniformLocation(program, "u_mouse"), this.mouse[0], this.mouse[1]);
-      gl.uniform1f(gl.getUniformLocation(program, "u_time"), time);
-      this.shader.setUniforms?.(gl, program, this.state);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-    }
+    this.draw(time);
 
     this.raf = window.requestAnimationFrame(this.loop);
   };

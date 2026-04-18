@@ -83,20 +83,37 @@ function ShaderCanvas<State extends object>({
     shader.state = JSON.parse(JSON.stringify(shader.__defaults));
 
     let runner: ShaderRunner<State> | null = null;
-    let cancelled = false;
 
-    /* Defer one frame so the canvas has a real CSS size before we read it.
-       Otherwise the GL viewport is initialized at 0×0 (or 300×150 default)
-       and the first frames render with broken uniforms — visually appearing
-       as a blank/white canvas until the next layout. */
-    const raf = requestAnimationFrame(() => {
-      if (cancelled || !ref.current) return;
-      runner = new ShaderRunner(ref.current, shader);
+    /* Wait for the canvas to have a real measured size before initializing
+       GL. If we init too early (before first layout), getBoundingClientRect
+       returns 0×0 and we'd paint a tiny framebuffer that the browser
+       stretches to fill the hero — producing the intermittent white/blurry
+       flash on cold loads. ResizeObserver fires synchronously after the
+       first layout pass, deterministically eliminating the race. */
+    const start = (width: number, height: number) => {
+      if (runner || width === 0 || height === 0) return;
+      runner = new ShaderRunner(canvas, shader);
+    };
+
+    const rect = canvas.getBoundingClientRect();
+    if (rect.width > 0 && rect.height > 0) {
+      start(rect.width, rect.height);
+    }
+
+    /* Always observe — even after a successful sync init — so resizes
+       continue to be picked up by the runner's own ResizeObserver after
+       handoff. The first observation here only matters when we *didn't*
+       init synchronously above. */
+    const observer = new ResizeObserver((entries) => {
+      const entry = entries[0];
+      if (!entry) return;
+      const { width, height } = entry.contentRect;
+      start(width, height);
     });
+    observer.observe(canvas);
 
     return () => {
-      cancelled = true;
-      cancelAnimationFrame(raf);
+      observer.disconnect();
       runner?.destroy();
     };
   }, [shader]);
@@ -665,6 +682,9 @@ function HomeApp({
           flexShrink: 0,
           borderBottom: `1px solid ${T.hair}`,
           overflow: "hidden",
+          /* Match shader clear color so any frame the canvas hasn't painted
+             yet (initial mount, context loss, resize) is dark, not white. */
+          background: "#07080a",
         }}
       >
         <ShaderCanvas shader={neuralLatticeShader} interactive={!isMobile} />
@@ -727,9 +747,37 @@ function HomeApp({
                 maxWidth: 640,
                 lineHeight: 1.35,
                 fontStyle: "italic",
+                /* The hero overlay sits on top of a non-interactive shader
+                   canvas; re-enable pointer events for the link only. */
+                pointerEvents: "auto",
               }}
             >
-              {profile.bio}
+              {profile.bioPrefix}
+              <a
+                href={profile.company.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                /* Stay italic so the link flows with the surrounding bio
+                   prose. Color alone is the link affordance; underline is
+                   hover-only to keep the headline area calm. */
+                style={{
+                  color: T.accent,
+                  textDecoration: "none",
+                  fontStyle: "italic",
+                  borderBottom: "1px solid rgba(159,192,255,0.25)",
+                  paddingBottom: "0.05em",
+                  transition: "border-color 160ms ease",
+                }}
+                onMouseEnter={(event) => {
+                  event.currentTarget.style.borderBottomColor = "rgba(159,192,255,0.7)";
+                }}
+                onMouseLeave={(event) => {
+                  event.currentTarget.style.borderBottomColor = "rgba(159,192,255,0.25)";
+                }}
+              >
+                {profile.company.name}
+              </a>
+              {profile.bioSuffix}
             </div>
           </div>
         </div>
@@ -1288,15 +1336,51 @@ function AboutApp({ isMobile }: { isMobile: boolean }) {
         }}
       >
         <div>
-          <p style={{ fontFamily: F.serif, fontSize: isMobile ? 18 : 21, lineHeight: 1.55, color: T.ink, margin: 0 }}>
-            I lead AI and data systems on the core platform powering SMB sales intelligence, spanning architecture, enrichment pipelines, and
-            agent orchestration that deliver high-coverage, real-time signals for go-to-market teams.
-          </p>
-          <p style={{ fontFamily: F.serif, fontSize: isMobile ? 16 : 18, lineHeight: 1.6, color: T.inkDim, marginTop: 18 }}>
-            My work sits at the intersection of product, data quality, and infrastructure reliability. I partner closely with founders, sales,
-            and customers to turn field feedback into scalable systems. Before this, I built across Salesforce CRM, Agentforce, analytics, and
-            machine learning infrastructure with a focus on performance, coverage, and repeatable engineering leverage.
-          </p>
+          {(() => {
+            const aboutBody: CSSProperties = {
+              fontFamily: F.text,
+              fontSize: isMobile ? 17.5 : 19,
+              lineHeight: 1.7,
+              fontWeight: 400,
+              letterSpacing: "0.005em",
+              fontFeatureSettings: "'kern' 1, 'liga' 1, 'onum' 1",
+              margin: 0,
+            };
+            return (
+              <>
+                <p style={{ ...aboutBody, color: T.ink }}>
+                  I lead AI and data systems at{" "}
+                  <a
+                    href={profile.company.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      color: T.accent,
+                      textDecoration: "none",
+                      borderBottom: "1px solid rgba(159,192,255,0.3)",
+                      paddingBottom: "0.05em",
+                      transition: "border-color 160ms ease",
+                    }}
+                    onMouseEnter={(event) => {
+                      event.currentTarget.style.borderBottomColor = "rgba(159,192,255,0.7)";
+                    }}
+                    onMouseLeave={(event) => {
+                      event.currentTarget.style.borderBottomColor = "rgba(159,192,255,0.3)";
+                    }}
+                  >
+                    Orbital
+                  </a>
+                  , on the core platform powering SMB sales intelligence — spanning architecture, enrichment
+                  pipelines, and agent orchestration that deliver high-coverage, real-time signals for go-to-market teams.
+                </p>
+                <p style={{ ...aboutBody, color: T.inkDim, marginTop: 20 }}>
+                  My work sits at the intersection of product, data quality, and infrastructure reliability. I partner closely with founders, sales,
+                  and customers to turn field feedback into scalable systems. Before this, I built across Salesforce CRM, Agentforce, analytics, and
+                  machine learning infrastructure with a focus on performance, coverage, and repeatable engineering leverage.
+                </p>
+              </>
+            );
+          })()}
           <div style={{ marginTop: isMobile ? 24 : 32, display: "flex", gap: 8, flexWrap: "wrap" }}>
             {["AI", "machine learning", "CRM", "data platforms", "pipelines", "Databricks", "scalable systems", "agent orchestration"].map(
               (tag) => (
@@ -1334,6 +1418,17 @@ function AboutApp({ isMobile }: { isMobile: boolean }) {
           <dl style={{ display: "grid", gridTemplateColumns: "70px 1fr", gap: "10px 12px", margin: 0, fontFamily: F.mono, fontSize: 12 }}>
             <dt style={{ color: T.inkFaint }}>status</dt>
             <dd style={{ margin: 0, color: T.ink }}>{profile.status}</dd>
+            <dt style={{ color: T.inkFaint }}>co</dt>
+            <dd style={{ margin: 0 }}>
+              <a
+                href={profile.company.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{ color: T.accent, textDecoration: "none" }}
+              >
+                Orbital
+              </a>
+            </dd>
             <dt style={{ color: T.inkFaint }}>loc</dt>
             <dd style={{ margin: 0, color: T.ink }}>{profile.location}</dd>
             <dt style={{ color: T.inkFaint }}>site</dt>
@@ -1454,7 +1549,7 @@ function TerminalApp({ isMobile }: { isMobile: boolean }) {
 
     if (normalized === "help") output.push({ type: "out", text: "whoami · about · links · projects · blog · contact · sudo · clear" });
     else if (normalized === "whoami") output.push({ type: "out", text: `${siteData.profile.fullName} — ${siteData.profile.title}` });
-    else if (normalized === "about") output.push({ type: "out", text: siteData.profile.bio });
+    else if (normalized === "about") output.push({ type: "out", text: siteData.profile.bioText });
     else if (normalized === "links") siteData.links.forEach((link) => output.push({ type: "out", text: `  ${link.label.padEnd(9)} ${link.url}` }));
     else if (normalized === "projects") siteData.projects.forEach((project) => output.push({ type: "out", text: `  ${project.name.padEnd(26)} ${project.tech}` }));
     else if (normalized === "blog" || normalized === "writing") blogPosts.forEach((post) => output.push({ type: "out", text: `  ${post.date}  ${post.title}` }));
