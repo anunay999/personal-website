@@ -41,7 +41,7 @@ export interface SiteData {
   links: LinkItem[];
 }
 
-const avatar = new URL("../profile.jpeg", import.meta.url).href;
+const avatar = new URL("./assets/profile.jpeg", import.meta.url).href;
 
 export const siteData: SiteData = {
   profile: {

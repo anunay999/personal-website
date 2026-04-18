@@ -23,6 +23,7 @@ src/
   content/blog/  # Markdown posts (see BLOGGING.md)
   hooks/         # Small React hooks (e.g. useMediaQuery)
   shaders/       # WebGL shader + runner
+  assets/        # Static assets bundled by Vite (e.g. profile.jpeg)
   siteData.ts    # Profile, projects, links, "now" — single source of truth
   claude.ts      # Gemini-backed terminal command + rate limiting
   theme.ts       # Tokens + shared styles
@@ -99,8 +100,8 @@ build output at your provider of choice.
 Feel free to fork this repo as a starting point for your own site. If you do,
 please:
 
-- Swap out the personal content in `src/siteData.ts`, `public/CNAME`, the
-  profile image, and the blog posts so it represents *you*, not me.
+- Swap out the personal content in `src/siteData.ts`, `public/CNAME`,
+  `src/assets/profile.jpeg`, and the blog posts so it represents *you*, not me.
 - Keep a visible credit back to this project — e.g. a "based on
   [anunay.dev](https://github.com/anunay999/personal-website) by Anunay
   Aatipamula" line in your README or site footer.
