@@ -255,7 +255,23 @@ function OSWindow({
         }}
       >
         <TitleBar segments={titleSegments} compact={isMobile} />
-        <div style={{ flex: 1, position: "relative", display: "flex", minHeight: 0 }}>{children}</div>
+        <div
+          style={{
+            flex: 1,
+            position: "relative",
+            display: "flex",
+            /* Sidebar layout on desktop is a horizontal split. Mobile is a
+               vertical stack (content area + bottom nav), so flip the
+               primary axis here — that lets MobileNav and <main> become
+               direct flex children of the shell, guaranteeing the nav is
+               pinned and only <main> scrolls. */
+            flexDirection: isMobile ? "column" : "row",
+            minHeight: 0,
+            minWidth: 0,
+          }}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );
@@ -616,7 +632,15 @@ function HomeApp({
   const profile = siteData.profile;
 
   return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column", overflow: isMobile ? "auto" : "hidden" }}>
+    <div
+      className={isMobile ? "app-screen-scroll" : undefined}
+      style={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        overflow: isMobile ? undefined : "hidden",
+      }}
+    >
       <div
         style={{
           position: "relative",
@@ -797,11 +821,8 @@ function ProjectsApp({ isMobile }: { isMobile: boolean }) {
   const indent = isMobile ? 30 : 38;
   return (
     <div
-      style={{
-        height: "100%",
-        overflow: "auto",
-        padding: isMobile ? "24px 18px 32px" : "40px 48px",
-      }}
+      className="app-screen-scroll"
+      style={{ padding: isMobile ? "24px 18px 32px" : "40px 48px" }}
     >
       <Header
         eyebrow="workspace / projects"
@@ -906,7 +927,10 @@ function BlogApp({
   }
 
   return (
-    <div style={{ height: "100%", overflow: "auto", padding: isMobile ? "24px 18px 32px" : "40px 48px" }}>
+    <div
+      className="app-screen-scroll"
+      style={{ padding: isMobile ? "24px 18px 32px" : "40px 48px" }}
+    >
       <Header
         eyebrow="workspace / writing"
         title="Notes from the workbench"
@@ -1012,11 +1036,8 @@ function PostView({ post, onBack, isMobile }: { post: BlogPost; onBack: () => vo
 
   return (
     <div
-      style={{
-        height: "100%",
-        overflow: "auto",
-        padding: isMobile ? "20px 22px 40px" : "40px 56px 64px",
-      }}
+      className="app-screen-scroll"
+      style={{ padding: isMobile ? "20px 22px 40px" : "40px 56px 64px" }}
     >
       <article style={{ maxWidth: 720, margin: "0 auto" }}>
         <button
@@ -1208,7 +1229,10 @@ function AboutApp({ isMobile }: { isMobile: boolean }) {
   const profile = siteData.profile;
 
   return (
-    <div style={{ height: "100%", overflow: "auto", padding: isMobile ? "24px 18px 32px" : "48px 56px" }}>
+    <div
+      className="app-screen-scroll"
+      style={{ padding: isMobile ? "24px 18px 32px" : "48px 56px" }}
+    >
       <Header eyebrow="workspace / about" title={profile.fullName} subtitle={profile.title} />
       <div
         style={{
@@ -1301,7 +1325,10 @@ function AboutApp({ isMobile }: { isMobile: boolean }) {
 
 function LinksApp({ isMobile }: { isMobile: boolean }) {
   return (
-    <div style={{ height: "100%", overflow: "auto", padding: isMobile ? "24px 18px 32px" : "48px 56px" }}>
+    <div
+      className="app-screen-scroll"
+      style={{ padding: isMobile ? "24px 18px 32px" : "48px 56px" }}
+    >
       <Header eyebrow="workspace / links" title="Find me" subtitle="All the doors into my world." />
       <div
         style={{
@@ -1556,33 +1583,17 @@ export default function App() {
 
   return (
     <OSWindow titleSegments={titleSegments} isMobile={isMobile}>
-      {isMobile ? (
-        <div style={{ flex: 1, display: "flex", flexDirection: "column", minWidth: 0, minHeight: 0 }}>
-          <main data-screen-label={`app-${app}`} style={mainStyle}>
-            <AppScreen
-              app={app}
-              setApp={setApp}
-              selectedPost={selectedPost}
-              setSelectedPost={setSelectedPost}
-              isMobile={isMobile}
-            />
-          </main>
-          <MobileNav current={app} onPick={handlePick} />
-        </div>
-      ) : (
-        <>
-          <Sidebar current={app} onPick={handlePick} />
-          <main data-screen-label={`app-${app}`} style={mainStyle}>
-            <AppScreen
-              app={app}
-              setApp={setApp}
-              selectedPost={selectedPost}
-              setSelectedPost={setSelectedPost}
-              isMobile={isMobile}
-            />
-          </main>
-        </>
-      )}
+      {!isMobile && <Sidebar current={app} onPick={handlePick} />}
+      <main data-screen-label={`app-${app}`} style={mainStyle}>
+        <AppScreen
+          app={app}
+          setApp={setApp}
+          selectedPost={selectedPost}
+          setSelectedPost={setSelectedPost}
+          isMobile={isMobile}
+        />
+      </main>
+      {isMobile && <MobileNav current={app} onPick={handlePick} />}
     </OSWindow>
   );
 }
@@ -1590,6 +1601,9 @@ export default function App() {
 const mainStyle: CSSProperties = {
   flex: 1,
   minWidth: 0,
+  /* Critical: without min-height: 0, a flex child's intrinsic height takes
+     over and the container can grow past the viewport — pushing the bottom
+     nav off-screen. */
   minHeight: 0,
   overflow: "hidden",
   position: "relative",
