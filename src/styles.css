@@ -85,3 +85,15 @@ input:focus-visible {
     height: 0;
   }
 }
+
+/* The single scrollable region inside the app shell. The shell itself
+   (titlebar + content + bottom nav) is fixed to the viewport; only this
+   surface scrolls. `overscroll-behavior: contain` prevents swipes from
+   bubbling up and triggering pull-to-refresh on the body. */
+.app-screen-scroll {
+  height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
