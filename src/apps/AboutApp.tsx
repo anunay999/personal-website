@@ -35,7 +35,7 @@ export function AboutApp({ isMobile }: { isMobile: boolean }) {
             return (
               <>
                 <p style={{ ...aboutBody, color: T.ink }}>
-                  Building the AI-native GTM engine and the data platform underneath it at{" "}
+                  Building the AI-native GTM engine and the data platform at{" "}
                   <a
                     href={profile.company.url}
                     target="_blank"
