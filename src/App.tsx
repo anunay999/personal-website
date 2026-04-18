@@ -583,8 +583,14 @@ function Panel({
         borderBottom: isMobile && !isLast ? `1px solid ${T.hair}` : undefined,
         display: "flex",
         flexDirection: "column",
-        overflow: "hidden",
+        /* Hide horizontal overflow always; vertical overflow is only relevant
+           on desktop where each panel is height-constrained inside the 50/50
+           grid. On mobile the panel grows naturally and the screen-level
+           scroller handles vertical overflow — no nested scroll regions. */
+        overflowX: "hidden",
+        overflowY: isMobile ? "visible" : "hidden",
         minHeight: 0,
+        minWidth: 0,
       }}
     >
       <div
@@ -615,7 +621,17 @@ function Panel({
           </button>
         ) : null}
       </div>
-      <div style={{ flex: 1, overflow: "auto", minHeight: 0 }}>{children}</div>
+      <div
+        style={{
+          flex: isMobile ? "0 0 auto" : 1,
+          overflowY: isMobile ? "visible" : "auto",
+          overflowX: "hidden",
+          minHeight: 0,
+          minWidth: 0,
+        }}
+      >
+        {children}
+      </div>
     </section>
   );
 }
@@ -723,31 +739,48 @@ function HomeApp({
         style={{
           flex: isMobile ? "0 0 auto" : 1,
           minHeight: 0,
+          minWidth: 0,
           display: "grid",
-          gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr",
+          /* `minmax(0, 1fr)` instead of `1fr` so a child with intrinsic min-
+             content wider than the column can't push the track wider than
+             its share — the textbook fix for grid horizontal overflow. */
+          gridTemplateColumns: isMobile ? "minmax(0, 1fr)" : "minmax(0, 1fr) minmax(0, 1fr)",
           overflow: isMobile ? "visible" : "hidden",
         }}
       >
         <Panel title="LATEST" onMore={() => onOpen("blog")} isMobile={isMobile}>
-          <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 14, minWidth: 0 }}>
             {blogPosts.slice(0, 2).map((post) => (
               <button
                 key={post.slug}
                 onClick={() => onOpenPost(post)}
                 style={{
                   display: "block",
+                  width: "100%",
+                  boxSizing: "border-box",
                   textAlign: "left",
                   background: "transparent",
                   border: "none",
                   cursor: "pointer",
                   textDecoration: "none",
                   color: "inherit",
-                  padding: 12,
-                  margin: -12,
+                  /* Symmetric vertical padding gives the same generous tap
+                     target the negative-margin trick provided, without ever
+                     letting the element bleed outside its container. */
+                  padding: "4px 0",
                   borderRadius: 4,
+                  minWidth: 0,
                 }}
               >
-                <div style={{ fontFamily: F.mono, fontSize: 10, color: T.inkFaint, marginBottom: 4, letterSpacing: "0.05em" }}>
+                <div
+                  style={{
+                    fontFamily: F.mono,
+                    fontSize: 10,
+                    color: T.inkFaint,
+                    marginBottom: 4,
+                    letterSpacing: "0.05em",
+                  }}
+                >
                   {post.date} · {post.read}
                 </div>
                 <div
@@ -758,6 +791,8 @@ function HomeApp({
                     color: T.ink,
                     marginBottom: 6,
                     letterSpacing: "-0.005em",
+                    /* Long, hyphen-free titles must wrap rather than scroll. */
+                    overflowWrap: "anywhere",
                   }}
                 >
                   {post.title}
@@ -768,6 +803,7 @@ function HomeApp({
                     fontSize: 14,
                     color: T.inkDim,
                     lineHeight: 1.55,
+                    overflowWrap: "anywhere",
                   }}
                 >
                   {post.excerpt}
@@ -777,16 +813,24 @@ function HomeApp({
           </div>
         </Panel>
         <Panel title="BUILDING" onMore={() => onOpen("projects")} isMobile={isMobile} isLast>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, minWidth: 0 }}>
             {siteData.projects.slice(0, 4).map((project) => (
               <a
                 key={project.name}
                 href={project.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", gap: 10, textDecoration: "none", color: "inherit" }}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "baseline",
+                  gap: 10,
+                  textDecoration: "none",
+                  color: "inherit",
+                  minWidth: 0,
+                }}
               >
-                <div style={{ minWidth: 0, flex: 1 }}>
+                <div style={{ minWidth: 0, flex: 1, overflowWrap: "anywhere" }}>
                   <div style={{ display: "flex", alignItems: "baseline", gap: 8, flexWrap: "wrap" }}>
                     <span style={{ fontFamily: F.mono, fontSize: 13, color: T.ink }}>{project.name}</span>
                     {project.kind === "NEW" ? (
