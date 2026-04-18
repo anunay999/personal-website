@@ -35,7 +35,7 @@ export function AboutApp({ isMobile }: { isMobile: boolean }) {
             return (
               <>
                 <p style={{ ...aboutBody, color: T.ink }}>
-                  I lead data systems at{" "}
+                  Building the AI-native GTM engine and the data platform underneath it at{" "}
                   <a
                     href={profile.company.url}
                     target="_blank"
@@ -56,8 +56,7 @@ export function AboutApp({ isMobile }: { isMobile: boolean }) {
                   >
                     Orbital
                   </a>
-                  , on the core platform powering an AI-native GTM engine — spanning architecture, enrichment pipelines, and agent orchestration
-                  that deliver high-coverage, real-time signals for go-to-market teams.
+                  : architecture, enrichment pipelines, and agent orchestration that deliver high-coverage, real-time signals for go-to-market teams.
                 </p>
                 <p style={{ ...aboutBody, color: T.inkDim, marginTop: 20 }}>
                   I build at the edge of product, data, and intelligence. The goal is simple: systems that scale by orders of magnitude. Before
